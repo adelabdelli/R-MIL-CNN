@@ -1,22 +1,3 @@
-def NoisyOR_aggregation(bag):
-    sub = tf.math.subtract(1.0,bag)
-    return tf.math.subtract(1.0,tf.math.reduce_prod(sub,axis=1))
-
-def MIL_aggregation(bag):
-    tf.random.set_seed(0)
-    # Input data
-    inp = bag
-    # Find index of greatest value in last two dimensions
-    s = tf.shape(inp)
-    inp_res = tf.reshape(inp, [s[0], -1])
-    max_idx = tf.math.argmax(inp_res, axis=1, output_type=s.dtype)
-    # Get row index dividing by number of columns
-    max_row_idx = max_idx // s[2]
-    # Get rows with max values
-    res = tf.gather_nd(inp, tf.expand_dims(max_row_idx, axis=1), batch_dims=1)
-
-    return res
-	
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +29,25 @@ from keras.src.engine.input_spec import InputSpec
 # isort: off
 from tensorflow.python.util.tf_export import keras_export
 
+def NoisyOR_aggregation(bag):
+    sub = tf.math.subtract(1.0,bag)
+    return tf.math.subtract(1.0,tf.math.reduce_prod(sub,axis=1))
 
+def MIL_aggregation(bag):
+    tf.random.set_seed(0)
+    # Input data
+    inp = bag
+    # Find index of greatest value in last two dimensions
+    s = tf.shape(inp)
+    inp_res = tf.reshape(inp, [s[0], -1])
+    max_idx = tf.math.argmax(inp_res, axis=1, output_type=s.dtype)
+    # Get row index dividing by number of columns
+    max_row_idx = max_idx // s[2]
+    # Get rows with max values
+    res = tf.gather_nd(inp, tf.expand_dims(max_row_idx, axis=1), batch_dims=1)
+
+    return res
+	
 @keras_export("keras.layers.Dense")
 class Dense2D(Layer):
     """Just your regular densely-connected NN layer.
